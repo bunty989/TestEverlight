@@ -1,0 +1,8 @@
+﻿#Api Setup
+protocol=https://
+domain=localhost:44449
+port=
+endpoint=/api/orders/
+
+#Body location
+bodyLocation=IntegrationTests\ApiObjects\Orders\PostOrders\Body\PostOrders.json

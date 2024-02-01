@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "accessionNumber": {
+        "type": "string"
+      },
+      "orgCode": {
+        "type": "string",
+        "enum": [
+          "LUM",
+          "CUK",
+          "USC"
+        ]
+      },
+      "siteName": {
+        "type": "string"
+      },
+      "patientMrn": {
+        "type": "string"
+      },
+      "patientName": {
+        "type": "string"
+      },
+      "modality": {
+        "type": "string",
+        "enum": [
+          "MR",
+          "US",
+          "CT",
+          "XR"
+        ]
+      },
+      "studyDateTime": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ZZ",
+          "CMD",
+          "CM",
+          "IP",
+          "SC"
+        ]
+      },
+      "createdAt": {
+        "type": "string"
+      },
+      "updatedAt": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": true,
+    "required": [
+      "id",
+      "accessionNumber",
+      "orgCode",
+      "siteName",
+      "patientMrn",
+      "patientName",
+      "modality",
+      "studyDateTime",
+      "status",
+      "createdAt",
+      "updatedAt"
+    ]
+  },
+  "additionalItems": true
+}
