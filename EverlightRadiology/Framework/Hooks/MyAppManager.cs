@@ -1,4 +1,6 @@
 ﻿
+using Serilog;
+
 namespace EverlightRadiology.Framework.Hooks
 {
     public class MyAppManager
@@ -14,7 +16,7 @@ namespace EverlightRadiology.Framework.Hooks
             _processRunner = new ProcessRunner("dotnet", "run --project " + appCsProj);
             _processRunner.Start();
 
-            _baseUrl = "https://localhost:44449";
+            _baseUrl = "https://localhost:7150";
 
             // Retry logic to wait for the application to start
             RetryHelper.Retry(() =>
@@ -30,6 +32,8 @@ namespace EverlightRadiology.Framework.Hooks
                     }
                     catch
                     {
+                        Log.Error("Application not reachable yet.");
+                        Console.WriteLine("Application not reachable yet.");
                         // Application not yet running, retry
                         throw new Exception("Application not reachable yet.");
                     }
