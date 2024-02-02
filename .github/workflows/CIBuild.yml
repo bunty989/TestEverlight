@@ -1,0 +1,73 @@
+name: Automated Testing with .Net Core
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  Test_Chrome:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Setup Node.js
+      uses: actions/setup-node@v4.0.1
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Replace tokens
+      uses: cschleiden/replace-tokens@v1
+      with:
+        files: '["**/*.json"]'
+      env:
+        browser: chromeheadless
+    - name: Build
+      run: dotnet build $GITHUB_WORKSPACE/AutomationTestSample/AutomationTestSample.csproj --no-restore
+    - name: Test
+      run: dotnet test $GITHUB_WORKSPACE/EverlightRadiology/EverlightRadiology.csproj --no-build --verbosity normal
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.3.0
+      if: always()
+      with:
+        path: |
+              EverlightRadiology/Logs*
+        if-no-files-found: warn
+
+  Test_Edge:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Setup Node.js
+      uses: actions/setup-node@v4.0.1
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Replace tokens
+      uses: cschleiden/replace-tokens@v1
+      with:
+        files: '["**/*.json"]'
+      env:
+        browser: edgeheadless
+    - name: Build
+      run: dotnet build $GITHUB_WORKSPACE/AutomationTestSample/AutomationTestSample.csproj --no-restore
+    - name: Test
+      run: dotnet test $GITHUB_WORKSPACE/EverlightRadiology/EverlightRadiology.csproj --no-build --verbosity normal
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.3.0
+      if: always()
+      with:
+        path: |
+          EverlightRadiology/Logs*
+        if-no-files-found: warn
