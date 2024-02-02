@@ -14,7 +14,7 @@ namespace EverlightRadiology.Framework.Hooks
             _processRunner = new ProcessRunner("dotnet", "run --project " + appCsProj);
             _processRunner.Start();
 
-            _baseUrl = "https://localhost:44449";
+            _baseUrl = "https://localhost:7150";
 
             // Retry logic to wait for the application to start
             RetryHelper.Retry(() =>
@@ -34,7 +34,7 @@ namespace EverlightRadiology.Framework.Hooks
                         throw new Exception("Application not reachable yet.");
                     }
                 }
-            }, maxRetries: 30, delayMilliseconds: 1000); // Adjust the retry count and delay as needed
+            }, maxRetries: 100, delayMilliseconds: 1500); // Adjust the retry count and delay as needed
         }
 
         public static void StopApplication()
