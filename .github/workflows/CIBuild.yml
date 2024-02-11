@@ -19,7 +19,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Setup Node.js
-      uses: actions/setup-node@v4.0.1
+      uses: actions/setup-node@v4.0.2
     - name: Replace tokens
       uses: cschleiden/replace-tokens@v1
       with:
@@ -49,7 +49,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Setup Node.js
-      uses: actions/setup-node@v4.0.1
+      uses: actions/setup-node@v4.0.2
       with:
         node-version: 18
     - name: Restore dependencies
