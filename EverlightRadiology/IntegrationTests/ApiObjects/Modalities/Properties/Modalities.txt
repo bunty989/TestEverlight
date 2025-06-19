@@ -1,5 +1,5 @@
 ﻿#Api Setup
 protocol=https://
-domain=localhost:7150
+domain=localhost:44449
 port=
-endpoint=/api/modalities/
+endpoint=api/modalities

@@ -9,16 +9,17 @@ namespace EverlightRadiology.IntegrationTests.StepDefinitions
     [Binding]
     public class PostOrdersStepDef
     {
-        PostOrders _postOrders = new();
         protected readonly ApiContext ApiContext;
         private readonly ScenarioContext _scenarioContext;
         private readonly CommonMethods _commonMethods;
+        private readonly PostOrders _postOrders;
 
         public PostOrdersStepDef(ScenarioContext scenarioContext, ApiContext apiContext)
         {
             ApiContext = apiContext;
             _commonMethods = new CommonMethods();
             _scenarioContext = scenarioContext;
+            _postOrders = new PostOrders();
         }
 
         [Given(@"I hit the PostOrders endpoint with valid headers")]

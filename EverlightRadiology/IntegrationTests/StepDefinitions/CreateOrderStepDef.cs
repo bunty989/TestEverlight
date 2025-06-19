@@ -122,11 +122,13 @@ namespace EverlightRadiology.IntegrationTests.StepDefinitions
             Assert.That(_newOrderPage?.ErrorMessageDisplayed() == 0);
         }
 
-
+        [When(@"the user is redirected to orders page")]
         [Then(@"the user is redirected to orders page")]
         public void ThenTheUserIsRedirectedToOrdersPage()
         {
-            Assert.That(_ordersPage?.IsOrderPageLoaded() == true);
+            var result = _newOrderPage?.NewOrderIsSubmittedSuccessfully() == true;
+            result = _ordersPage?.IsOrderPageLoaded() == true;
+            Assert.That(result, Is.True);
         }
 
         [Then(@"the order is successfully created")]

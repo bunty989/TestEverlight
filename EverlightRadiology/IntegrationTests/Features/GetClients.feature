@@ -1,4 +1,5 @@
-﻿Feature: GetClients
+﻿@Retry
+Feature: GetClients
 
 Feature to test the Get Client API
 

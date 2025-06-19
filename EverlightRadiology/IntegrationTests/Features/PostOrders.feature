@@ -1,4 +1,5 @@
-﻿Feature: PostOrders
+﻿@Retry
+Feature: PostOrders
 
 Feature to test the Post Orders API
 

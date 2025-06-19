@@ -24,10 +24,12 @@ namespace EverlightRadiology.Framework.Wrapper
         {
             public static string? GetBaseDirectory = Directory.GetParent(@"../../../")?.FullName;
             public static string ReportPath = Path.Combine(GetBaseDirectory ?? throw new DirectoryNotFoundException());
-            public static string HtmlReportFolder = "\\Logs";
+            public static string HtmlReportFolder = "Logs";
             public const string ConfigFileName = "appsettings.json";
             public const string LogName = @"\Log";
             public const string ExtentConfigName = "ExtentConfig.json";
+            public static string? baseDir = AppContext.BaseDirectory;
+            public static string? TestAppPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "AutomationTestSample"));
         }
 
         public static class LoggerLevel
@@ -70,6 +72,8 @@ namespace EverlightRadiology.Framework.Wrapper
             Enter,
             ArrowDown,
             ArrowUp,
+            ArrowLeft,
+            ArrowRight,
             Tab
         }
 
@@ -82,7 +86,8 @@ namespace EverlightRadiology.Framework.Wrapper
             Edge,
             EdgeHeadless,
             ChromeHeadless,
-            ChromeIncognito
+            ChromeIncognito,
+            Safari
         }
     }
 }
