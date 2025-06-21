@@ -7,7 +7,7 @@ namespace EverlightRadiology.IntegrationTests.ApiObjects.Clients
     {
         public GetClients()
         {
-            var keyValFile = "IntegrationTests\\ApiObjects\\Clients\\Properties\\Clients.txt";
+            var keyValFile = Path.Combine("IntegrationTests", "ApiObjects", "Clients", "Properties", "Clients.txt");
             ApiProperties = new KeyValueFileReader(keyValFile);
 
             //Headers
@@ -21,6 +21,10 @@ namespace EverlightRadiology.IntegrationTests.ApiObjects.Clients
             ExecuteGetApiCall();
         }
 
-        public bool PassValidSchemaCheck() { return ValidateJsonSchema("IntegrationTests\\ApiObjects\\Clients\\ResponseSchema\\Schema200.json"); }
+        public bool PassValidSchemaCheck()
+        {
+            var schemaPath = Path.Combine("IntegrationTests", "ApiObjects", "Clients", "ResponseSchema", "Schema200.json");
+            return ValidateJsonSchema(schemaPath);
+        }
     }
 }

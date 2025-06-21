@@ -9,14 +9,15 @@ namespace EverlightRadiology.IntegrationTests.StepDefinitions
     [Binding]
     public class GetClientsStepDef
     {
-        GetClients _getClients = new();
         protected readonly ApiContext ApiContext;
         private readonly ScenarioContext _scenarioContext;
+        private readonly GetClients _getClients;
 
         public GetClientsStepDef(ScenarioContext scenarioContext, ApiContext apiContext)
         {
             ApiContext = apiContext;
             _scenarioContext = scenarioContext;
+            _getClients = new GetClients();
         }
 
         [Given(@"I hit the GetClient endpoint with valid headers")]

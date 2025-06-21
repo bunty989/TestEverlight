@@ -4,7 +4,9 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Safari;
 using Serilog;
+using System.Drawing;
 using Browser = EverlightRadiology.Framework.Wrapper.TestConstant.BrowserType;
 
 namespace EverlightRadiology.Framework.Drivers
@@ -18,13 +20,13 @@ namespace EverlightRadiology.Framework.Drivers
 
         public IWebDriver? InvokeDriverInstance(Browser browserType)
         {
-            _browserVersion = _browserVersionHelper.GetBrowserVersion(browserType);
+            _browserVersion = BrowserVersionHelper.GetBrowserVersion(browserType);
             switch (browserType)
             {
                 case Browser.Chrome:
                     {
                         var chromeOption = new ChromeOptions();
-                        chromeOption.AddArguments("start-maximized", "--disable-gpu", "--no-sandbox");
+                        chromeOption.AddArguments("start-maximized", "--disable-gpu", "--no-sandbox", "--ignore-certificate-errors");
                         chromeOption.AddExcludedArgument("enable-automation");
                         //chromeOption.AddAdditionalCapability("useAutomationExtension", false);
                         chromeOption.AddUserProfilePreference("credentials_enable_service", false);
@@ -95,7 +97,7 @@ namespace EverlightRadiology.Framework.Drivers
                 case Browser.ChromeHeadless:
                     {
                         var chromeOption = new ChromeOptions();
-                        chromeOption.AddArguments("disable-gpu", "no-sandbox", "--window-size=1280,800", "--headless=new");
+                        chromeOption.AddArguments("disable-gpu", "no-sandbox", "--window-size=1280,800", "--headless=new", "--ignore-certificate-errors");
                         chromeOption.AddExcludedArgument("enable-automation");
                         chromeOption.AddUserProfilePreference("credentials_enable_service", false);
                         chromeOption.AddUserProfilePreference("profile.password_manager_enabled", false);
@@ -106,13 +108,23 @@ namespace EverlightRadiology.Framework.Drivers
                 case Browser.ChromeIncognito:
                     {
                         var chromeOption = new ChromeOptions();
-                        chromeOption.AddArguments("start-maximized", "--disable-gpu", "--no-sandbox", "--incognito");
+                        chromeOption.AddArguments("start-maximized", "--disable-gpu", "--no-sandbox", "--incognito", "--ignore-certificate-errors");
                         chromeOption.AddExcludedArgument("enable-automation");
                         chromeOption.AddAdditionalChromeOption("useAutomationExtension", false);
                         chromeOption.AddUserProfilePreference("credentials_enable_service", false);
                         chromeOption.AddUserProfilePreference("profile.password_manager_enabled", false);
                         chromeOption.PageLoadStrategy = PageLoadStrategy.Eager;
                         Driver = new ChromeDriver(chromeOption);
+                        break;
+                    }
+                case Browser.Safari:
+                    {
+                        var safariOptions = new SafariOptions
+                        {
+                            AcceptInsecureCertificates = true,
+                            PageLoadStrategy = PageLoadStrategy.Eager
+                        };
+                        Driver = new SafariDriver(safariOptions);
                         break;
                     }
                 default:
@@ -131,6 +143,7 @@ namespace EverlightRadiology.Framework.Drivers
             _browserName = browserType.ToString();
             Log.Information("Started {0} WebDriver successfully", _browserName);
             Driver.Manage().Window.Maximize();
+            Driver.Manage().Window.Size = new Size(1920, 1080);
             Driver.Manage().Timeouts().ImplicitWait =
                 TimeSpan.FromSeconds(int.Parse
                 (ConfigHelper.ReadConfigValue

@@ -1,4 +1,5 @@
-﻿Feature: CreateOrder
+﻿@Retry
+Feature: CreateOrder
 
 Feature to test the create order functionality
 
@@ -39,6 +40,7 @@ Scenario: Create order successfully
 	When I click on create new
 	And I enter a value for all fields
 	And I click on submit
+	And the user is redirected to orders page
 	Then the order is successfully created
 	And the status is automatically set as SC
 
@@ -48,6 +50,7 @@ Scenario: Create order successfully with same mrn but different accession number
 	When I click on create new
 	And I enter a value for all fields with existing MRN
 	And I click on submit
+	And the user is redirected to orders page
 	Then the order is successfully created with both the details
 
 @tag7

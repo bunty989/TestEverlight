@@ -1,4 +1,5 @@
-﻿Feature: GetOrders
+﻿@Retry
+Feature: GetOrders
 
 Feature to test the Get Orders API
 

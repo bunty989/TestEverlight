@@ -33,7 +33,7 @@ namespace EverlightRadiology.Framework.Wrapper
             Client.AddDefaultHeaders(Headers);
         }
 
-        public string ConstructApi(string query = null)
+        public string ConstructApi(string? query = null)
         {
             Protocol = ApiProperties.GetValueOfKey("protocol");
             Port = ApiProperties.GetValueOfKey("port");
@@ -42,7 +42,8 @@ namespace EverlightRadiology.Framework.Wrapper
             Options = new RestClientOptions(new Uri(Protocol + Domain))
             {
                 ThrowOnAnyError = false,
-                MaxTimeout = 10000,
+                Timeout = TimeSpan.FromSeconds(20000),
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
             };
             Client = new RestClient(Options);
             //If body location is set then load payload
@@ -50,7 +51,7 @@ namespace EverlightRadiology.Framework.Wrapper
             AddToHeadersList();
             if (Options.BaseUrl == null) return null;
             var baseUrl = Options.BaseUrl.ToString();
-            return baseUrl + Query;
+            return baseUrl + Endpoint + Query;
         }
 
         public void AddBody()
@@ -66,7 +67,7 @@ namespace EverlightRadiology.Framework.Wrapper
         {
             Response = Client.ExecuteGetAsync(
                 new RestRequest(Port + Endpoint + Query)).Result;
-            Log.Debug("The response received is : {0}", Response.Content.ToString());
+            Log.Debug("The response received is : {0}", Response.Content?.ToString());
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -75,7 +76,7 @@ namespace EverlightRadiology.Framework.Wrapper
             Response = Client.ExecuteGetAsync((
                 new RestRequest(Port + Endpoint + Query))
                 .AddStringBody(Body, ContentType.Json)).Result;
-            Log.Debug("The response received is : {0}", Response.Content.ToString());
+            Log.Debug("The response received is : {0}", Response.Content?.ToString());
         }
 
         public void ExecutePostApiCall()
@@ -83,7 +84,7 @@ namespace EverlightRadiology.Framework.Wrapper
             Response = Client.ExecutePostAsync((
                 new RestRequest(Port + Endpoint + Query))
                 .AddStringBody(Body, ContentType.Json)).Result;
-            Log.Debug("The response received is : {0}", Response.Content.ToString());
+            Log.Debug("The response received is : {0}", Response.Content?.ToString());
         }
 
         public void ExecutePutApiCall()
@@ -91,7 +92,7 @@ namespace EverlightRadiology.Framework.Wrapper
             Response = Client.ExecutePutAsync((
                 new RestRequest(Port + Endpoint + Query))
                 .AddStringBody(Body, ContentType.Json)).Result;
-            Log.Debug("The response received is : {0}", Response.Content.ToString());
+            Log.Debug("The response received is : {0}", Response.Content?.ToString());
         }
 
         public static void AssertStatusCodeReturned(int code, RestResponse response)
@@ -105,11 +106,11 @@ namespace EverlightRadiology.Framework.Wrapper
         }
 
         //Turn into C# Object
-        public dynamic DeserializeJson(string payloadLocation)
+        public dynamic? DeserializeJson(string payloadLocation)
         {
             var json = JsonFile.Equals("") ? KeyValueFileReader.ReadInWholeFile(payloadLocation) : (string) JsonFile;
             //string json = apiProperties.readInWholeFile(payloadLocation);
-            dynamic jsonObj = JsonConvert.DeserializeObject(json);
+            dynamic? jsonObj = JsonConvert.DeserializeObject(json);
             return jsonObj;
         }
 
@@ -121,27 +122,27 @@ namespace EverlightRadiology.Framework.Wrapper
             return jsonObj;
         }
 
-        public dynamic ModifyPayload(string nodeKeyName, string newValue, dynamic jObj = null)
+        public dynamic ModifyPayload(string nodeKeyName, string newValue, dynamic? jObj = null)
         {
             jObj ??= DeserializeJson(BodyLocation);
-            var jToken = jObj.SelectToken(nodeKeyName);
+            var jToken = jObj?.SelectToken(nodeKeyName);
             // Update the value of the property: 
             jToken?.Replace(newValue);
             //Then make it a json object again
             return SerializeJsonAndSave(jObj);
         }
 
-        public dynamic ModifyPayloadDeleteNode(string nodeKeyName, dynamic jObj = null)
+        public dynamic ModifyPayloadDeleteNode(string nodeKeyName, dynamic? jObj = null)
         {
             jObj ??= DeserializeJson(BodyLocation);
-            var jToken = jObj.SelectToken(nodeKeyName);
+            var jToken = jObj?.SelectToken(nodeKeyName);
             // Update the value of the property: 
             jToken?.Parent?.Remove();
             //Then make it a json object again
             return SerializeJsonAndSave(jObj);
         }
 
-        public string ReturnValueFromPayload(string key1, string key2 = null)
+        public string? ReturnValueFromPayload(string key1, string key2 = null)
         {
             var nodeString = key2 == null ? key1 : key1 + "." + key2;
             if (Response.Content == null) return null;
@@ -151,7 +152,7 @@ namespace EverlightRadiology.Framework.Wrapper
 
         }
 
-        public string ReturnValueFromJsonCObj(string key, string payloadLoc)
+        public string? ReturnValueFromJsonCObj(string key, string payloadLoc)
         {
             return DeserializeJson(payloadLoc)[key];
         }
@@ -159,7 +160,7 @@ namespace EverlightRadiology.Framework.Wrapper
         public bool ValidateJsonSchema(string jsonSchemaFilePath)
         {
             var schema = JSchema.Parse(File.ReadAllText(jsonSchemaFilePath));
-            var response = Response.Content.ToString();
+            var response = Response.Content?.ToString();
             var jsonToken = JToken.Parse(response);
             bool isValid = false;
             IList<string> errors = new List<string>();

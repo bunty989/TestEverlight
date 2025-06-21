@@ -17,7 +17,7 @@ namespace EverlightRadiology.Framework.Hooks
     [Binding]
     public sealed class SpecflowHooks
     {
-        private static string? _processName;
+        private static Process? _appProcess;
         [ThreadStatic]
         private static DriverHelper? _driverHelper;
 
@@ -33,11 +33,10 @@ namespace EverlightRadiology.Framework.Hooks
         private static ExtentTest? _step;
 
         private static ExtentReports? _extent;
-        private static BrowserVersionHelper _browserVersionHelper = new();
         private string _scenarioType = "ui";
         private static string BrowserType => ConfigHelper.ReadConfigValue
             (TestConstant.ConfigTypes.WebDriverConfig, TestConstant.ConfigTypesKey.Browser);
-        private static string? BrowserVersion => _browserVersionHelper.GetBrowserVersion(
+        private static string? BrowserVersion => BrowserVersionHelper.GetBrowserVersion(
             (TestConstant.BrowserType)Enum.Parse(typeof(TestConstant.BrowserType), BrowserType, true));
 
         [BeforeScenario]
@@ -73,10 +72,10 @@ namespace EverlightRadiology.Framework.Hooks
         [BeforeTestRun]
         public static void BeforeTestRun()
         {
-            MyAppManager.StartApplication();
+            StartAutomationTestSampleApp();
             var formattedDateTime = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
             var reportFilePath =
-                TestConstant.PathVariables.GetBaseDirectory + TestConstant.PathVariables.HtmlReportFolder
+                TestConstant.PathVariables.GetBaseDirectory + Path.DirectorySeparatorChar + TestConstant.PathVariables.HtmlReportFolder
                                                             + Path.DirectorySeparatorChar + formattedDateTime;
             CommonMethods.CreateFolder(reportFilePath);
             var levelSwitch = new LoggingLevelSwitch(GetLogLevel());
@@ -85,9 +84,9 @@ namespace EverlightRadiology.Framework.Hooks
                 .WriteTo.File(reportFilePath + TestConstant.PathVariables.LogName,
                     outputTemplate: "{Timestamp: yyyy-MM-dd HH:mm:ss.fff} | {Level:u3} | {Message} | {NewLine}",
                     rollingInterval: RollingInterval.Day).CreateLogger();
-            var htmlReport = new ExtentSparkReporter(reportFilePath + "\\ExtentFramework.html");
-            htmlReport.LoadJSONConfig(TestConstant.PathVariables.ReportPath + Path.DirectorySeparatorChar
-            + TestConstant.PathVariables.ExtentConfigName);
+            var htmlReport = new ExtentSparkReporter(reportFilePath + Path.DirectorySeparatorChar + "ExtentFramework.html");
+            htmlReport.LoadJSONConfig(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
+                TestConstant.PathVariables.ExtentConfigName));
             _extent = new ExtentReports();
             Dictionary<string, string?> sysInfo = new()
             {
@@ -229,8 +228,44 @@ namespace EverlightRadiology.Framework.Hooks
         [AfterTestRun]
         public static void AfterTestRun()
         {
+            if (_appProcess != null && !_appProcess.HasExited)
+            {
+                _appProcess.Kill();
+                _appProcess.Dispose();
+            }
             Log.CloseAndFlush();
-            MyAppManager.StopApplication();
+        }
+
+        private static void StartAutomationTestSampleApp()
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = "run",
+                WorkingDirectory = TestConstant.PathVariables.TestAppPath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            _appProcess = new Process { StartInfo = startInfo };
+            _appProcess.Start();
+
+            string? line;
+            var timeout = TimeSpan.FromSeconds(600);
+            var start = DateTime.Now;
+            while ((line = _appProcess.StandardOutput.ReadLine()) != null)
+            {
+                if (line.Contains("SPA development server running at 'https://localhost:44449'"))
+                {
+                    break; // App is ready
+                }
+                if (DateTime.Now - start > timeout)
+                {
+                    throw new TimeoutException("Timed out waiting for AutomationTestSample to start.");
+                }
+            }
         }
 
         private static Media AttachScreenShot(string name)

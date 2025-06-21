@@ -7,13 +7,13 @@ namespace EverlightRadiology.IntegrationTests.ApiObjects.Orders.PostOrders
     {
         public PostOrders()
         {
-            var keyValFile = "IntegrationTests\\ApiObjects\\Orders\\PostOrders\\Properties\\Orders.txt";
+            var keyValFile = Path.Combine("IntegrationTests", "ApiObjects", "Orders", "PostOrders", "Properties", "Orders.txt");
             ApiProperties = new KeyValueFileReader(keyValFile);
 
             //Headers
             Headers = new Dictionary<string, string>() { };
 
-            BodyLocation = ApiProperties.GetValueOfKey("bodyLocation");
+            BodyLocation = Path.Combine("IntegrationTests", "ApiObjects", "Orders", "PostOrders", "Body", "PostOrders.json");
         }
 
         public void ModifyPayloadBody(string key, string value)
@@ -37,8 +37,9 @@ namespace EverlightRadiology.IntegrationTests.ApiObjects.Orders.PostOrders
 
         public bool PassValidSchemaCheck(int schemaVal) 
         {
-            var schemaLocation = schemaVal == 400 ? "IntegrationTests\\ApiObjects\\Orders\\PostOrders\\ResponseSchema\\Schema400.json" :
-                "IntegrationTests\\ApiObjects\\Orders\\PostOrders\\ResponseSchema\\Schema409.json";
+            var schemaLocation = schemaVal == 400
+                ? Path.Combine("IntegrationTests", "ApiObjects", "Orders", "PostOrders", "ResponseSchema", "Schema400.json")
+                : Path.Combine("IntegrationTests", "ApiObjects", "Orders", "PostOrders", "ResponseSchema", "Schema409.json");
             return ValidateJsonSchema(schemaLocation); 
         }
     }

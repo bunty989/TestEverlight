@@ -7,7 +7,7 @@ namespace EverlightRadiology.IntegrationTests.ApiObjects.Modalities
     {
         public GetModalities()
         {
-            var keyValFile = "IntegrationTests\\ApiObjects\\Modalities\\Properties\\Modalities.txt";
+            var keyValFile = Path.Combine("IntegrationTests", "ApiObjects", "Modalities", "Properties", "Modalities.txt");
             ApiProperties = new KeyValueFileReader(keyValFile);
 
             //Headers
@@ -21,6 +21,6 @@ namespace EverlightRadiology.IntegrationTests.ApiObjects.Modalities
             ExecuteGetApiCall();
         }
 
-        public bool PassValidSchemaCheck() { return ValidateJsonSchema("IntegrationTests\\ApiObjects\\Modalities\\ResponseSchema\\Schema200.json"); }
+        public bool PassValidSchemaCheck() { return ValidateJsonSchema(Path.Combine("IntegrationTests", "ApiObjects", "Modalities", "ResponseSchema", "Schema200.json")); }
     }
 }

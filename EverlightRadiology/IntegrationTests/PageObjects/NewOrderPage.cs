@@ -29,6 +29,8 @@ namespace EverlightRadiology.IntegrationTests.PageObjects
             _webHelper.InitialiseDynamicWebElement(LocatorType.CssSelector, "#study-date-time");
         protected IWebElement? BtnSubmit =>
             _webHelper.InitialiseDynamicWebElement(LocatorType.CssSelector, "[type='submit']");
+        protected IWebElement? BtnSubmitCSS =>
+            _webHelper.FindWebElementFromDomUsingCssSelector("[type='submit']");
         protected IWebElement? BtnCancel =>
             _webHelper.InitialiseDynamicWebElement(LocatorType.CssSelector, "[class='btn btn-warning']");
         protected List<IWebElement?> LabelErrorMessageCollection =>
@@ -43,12 +45,12 @@ namespace EverlightRadiology.IntegrationTests.PageObjects
         }
 
         public void EnterFirstName(string firstName) =>
-        _webHelper.PerformWebDriverAction(TxtBoxFirstName,WebDriverAction.Input, firstName);
+        _webHelper.PerformWebDriverAction(TxtBoxFirstName, WebDriverAction.Input, firstName);
 
         public void EnterLastName(string lastName) =>
         _webHelper.PerformWebDriverAction(TxtBoxLastName, WebDriverAction.Input, lastName);
 
-       
+
         public void EnterAccessionNum(string accessionNum) =>
         _webHelper.PerformWebDriverAction(TxtBoxAccessionNum, WebDriverAction.Input, accessionNum);
 
@@ -67,12 +69,15 @@ namespace EverlightRadiology.IntegrationTests.PageObjects
             var dtTime = DateTime.ParseExact(dateTime, "dd/MM/yyyy hh:mm tt", cultureType);
             _webHelper.PerformWebDriverAction(TxtBoxStudyDateTime, WebDriverAction.DoubleClick, null);
             _webHelper.PerformWebDriverAction(TxtBoxStudyDateTime, WebDriverAction.SendKeys,
-                 dtTime.ToString("dd", cultureType));
+                 dtTime.Month.ToString("D2"));
             _webHelper.PerformWebDriverAction(TxtBoxStudyDateTime, WebDriverAction.SendKeys,
-                 dtTime.ToString("MM", cultureType));
+                 dtTime.Day.ToString("D2"));
             _webHelper.PerformWebDriverAction(TxtBoxStudyDateTime, WebDriverAction.SendKeys,
-                  dtTime.ToString("yyyy", cultureType));
-            _webHelper.KeyboardAction(KeyBoardAction.Tab, 1);
+                  dtTime.Year.ToString());
+            if (!_webHelper.GetBowserName().ToLowerInvariant().Contains("firefox"))
+            {
+                _webHelper.KeyboardAction(KeyBoardAction.ArrowRight, 1);
+            }
             _webHelper.PerformWebDriverAction(TxtBoxStudyDateTime, WebDriverAction.SendKeys,
                  dtTime.ToString("hh", cultureType));
             _webHelper.PerformWebDriverAction(TxtBoxStudyDateTime, WebDriverAction.SendKeys,
@@ -94,9 +99,24 @@ namespace EverlightRadiology.IntegrationTests.PageObjects
 
         public bool IsErrorMessagePresent(String errorMessage)
         {
-            var webE =  LabelErrorMessageCollection.SingleOrDefault(x =>
+            var webE = LabelErrorMessageCollection.SingleOrDefault(x =>
             _webHelper.ReturnVisibleText(x).Equals(errorMessage, StringComparison.Ordinal));
             return webE is IWebElement;
+        }
+
+        public bool NewOrderIsSubmittedSuccessfully()
+        {
+            var counter = 0;
+            bool flagOrderSuccess = false;
+            do
+            {
+                CommonMethods.WaitInSeconds(1);
+                flagOrderSuccess = BtnSubmitCSS == null;
+                if(flagOrderSuccess) return true;
+                counter++;
+            }
+            while (!flagOrderSuccess && counter < 30);
+            return false;
         }
     }
 }

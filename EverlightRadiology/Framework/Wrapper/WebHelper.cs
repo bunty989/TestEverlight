@@ -36,7 +36,7 @@ namespace EverlightRadiology.Framework.Wrapper
                     ConfigKey.ObjectIdentificationTimeOut))));
             dWait.IgnoreExceptionTypes(typeof(StaleElementReferenceException),
                 typeof(NoSuchElementException),
-                typeof(ElementNotVisibleException),
+                typeof(InvalidElementStateException),
                 typeof(ElementNotInteractableException));
             try
             {
@@ -345,6 +345,8 @@ namespace EverlightRadiology.Framework.Wrapper
                 KeyBoardAction.Enter => Keys.Enter,
                 KeyBoardAction.ArrowDown => Keys.ArrowDown,
                 KeyBoardAction.ArrowUp => Keys.ArrowUp,
+                KeyBoardAction.ArrowLeft => Keys.ArrowLeft,
+                KeyBoardAction.ArrowRight => Keys.ArrowRight,
                 KeyBoardAction.Tab => Keys.Tab,
                 _ => null
             };
@@ -603,6 +605,13 @@ namespace EverlightRadiology.Framework.Wrapper
             var xPath = "tbody/tr[" + matchingRowIndex + "]/td[" + outputColumnIndex + "]";
             return matchingRowIndex == 0 && outputColumnIndex > 1 ? null :
                 dynamicWebTable.FindElement(By.XPath(xPath));
+        }
+
+        public string GetBowserName()
+        {
+            var browserName = Driver?.GetType().Name;
+            Log.Debug("The Browser Name is {0}", browserName);
+            return browserName ?? "Unknown Browser";
         }
 
         private void WebElementExceptionHandler(WebDriverAction webDriverAction, string? strData = null)

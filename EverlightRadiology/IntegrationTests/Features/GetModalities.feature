@@ -1,4 +1,5 @@
-﻿Feature: GetModalities
+﻿@Retry
+Feature: GetModalities
 
 Feature to test the Get Modalities API
 
