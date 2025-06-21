@@ -17,20 +17,24 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "progress": false,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "progress": false
           },
           "configurations": {
             "production": {
@@ -80,19 +84,30 @@
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "AutomationTestSample:build"
-          }
+          "configurations": {
+            "production": {
+              "buildTarget": "AutomationTestSample:build:production"
+            },
+            "development": {
+              "buildTarget": "AutomationTestSample:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
+          "defaultConfiguration": "development",
           "options": {
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "assets": [
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
             ],
             "styles": [
               "src/styles.css"
@@ -109,6 +124,7 @@
           },
           "configurations": {
             "dev": {
+              "buildTarget": "AutomationTestSample:build:development",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -117,6 +133,7 @@
               "vendorChunk": true
             },
             "production": {
+              "buildTarget": "AutomationTestSample:build:production",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -124,7 +141,8 @@
               "extractLicenses": true,
               "vendorChunk": false
             }
-          }
+          },
+          "defaultConfiguration": "production"
         }
       }
     }

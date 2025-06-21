@@ -10,43 +10,30 @@ import { MatSpinner } from '@angular/material/progress-spinner';
     providedIn: 'root'
 })
 export class SpinnerService {
-    private spinnerTopRef: OverlayRef;
+    private spinnerRef: OverlayRef | undefined;
 
-    private spin$: Subject<number> = new Subject();
+    constructor(private overlay: Overlay) {}
 
-    constructor(private overlay: Overlay) {
-        this.spinnerTopRef = this.overlay.create({
-            hasBackdrop: true,
-            positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically()
-        });
-
-        this.spin$
-            .asObservable()
-            .pipe(
-                scan((acc, next) => {
-                    if (!next) {
-                        return 0;
-                    }
-                    return acc + next >= 0 ? acc + next : 0;
-                }, 0),
-                map(val => val > 0),
-                distinctUntilChanged()
-            )
-            .subscribe(res => {
-                if (res) {
-                    this.spinnerTopRef.attach(new ComponentPortal(MatSpinner));
-                } else if (this.spinnerTopRef.hasAttached()) {
-                    this.spinnerTopRef.detach();
-                }
-            });
-    }
     show() {
-        this.spin$.next(1);
+        if (!this.spinnerRef) {
+            const positionStrategy = this.overlay.position()
+                .global()
+                .centerHorizontally()
+                .centerVertically();
+
+            this.spinnerRef = this.overlay.create({
+                hasBackdrop: true,
+                positionStrategy
+            });
+
+            this.spinnerRef.attach(new ComponentPortal(MatSpinner));
+        }
     }
+
     hide() {
-        this.spin$.next(-1);
-    }
-    reset() {
-        this.spin$.next(0);
+        if (this.spinnerRef) {
+            this.spinnerRef.detach();
+            this.spinnerRef = undefined;
+        }
     }
 }

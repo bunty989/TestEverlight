@@ -13,11 +13,12 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2017",
-    "module": "es2020",
+    "target": "ES2022",                       // UPDATED
+    "module": "ES2022",                       // UPDATED
+    "useDefineForClassFields": true,          // NEW: Required in Angular 13+
     "lib": [
-      "es2018",
-      "dom"
+      "ES2022",                               // UPDATED
+      "DOM"
     ]
   },
   "angularCompilerOptions": {
