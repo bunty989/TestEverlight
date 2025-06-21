@@ -9,14 +9,15 @@ namespace EverlightRadiology.IntegrationTests.StepDefinitions
     [Binding]
     public class GetModalitiesStepDef
     {
-        GetModalities _getModalities = new();
         protected readonly ApiContext ApiContext;
+        private readonly GetModalities _getModalities;
         private readonly ScenarioContext _scenarioContext;
 
         public GetModalitiesStepDef(ScenarioContext scenarioContext, ApiContext apiContext)
         {
             ApiContext = apiContext;
             _scenarioContext = scenarioContext;
+            _getModalities = new GetModalities();
         }
 
         [Given(@"I hit the GetModalities endpoint with valid headers")]

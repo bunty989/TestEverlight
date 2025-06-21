@@ -8,14 +8,15 @@ namespace EverlightRadiology.IntegrationTests.StepDefinitions
     [Binding]
     internal class GetOrdersStepDef
     {
-        GetOrders _getOrders = new();
         protected readonly ApiContext ApiContext;
+        private readonly GetOrders _getOrders;
         private readonly ScenarioContext _scenarioContext;
 
         public GetOrdersStepDef(ScenarioContext scenarioContext, ApiContext apiContext)
         {
             ApiContext = apiContext;
             _scenarioContext = scenarioContext;
+            _getOrders = new GetOrders();
         }
 
         [Given(@"I hit the GetOrders endpoint with valid headers")]

@@ -43,7 +43,7 @@ namespace EverlightRadiology.IntegrationTests.PageObjects
         public void ClickXButton(string accessionNumber)
         {
             var webE = _webHelper.GetColumnWebElementFromWebTable(TableOrder, accessionNumber, string.Empty);
-            _webHelper.PerformWebDriverAction(webE, WebDriverAction.Click, null);
+            _webHelper.PerformWebDriverAction(webE, WebDriverAction.DoubleClick, null);
         }
 
         public void CancelPopup()

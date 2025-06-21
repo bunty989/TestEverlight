@@ -24,7 +24,7 @@ namespace EverlightRadiology.Framework.Wrapper
             return toDate;
         }
 
-        public void WaitInSeconds(int seconds)
+        public static void WaitInSeconds(int seconds)
         {
             Thread.Sleep(seconds * 1000);
         }
