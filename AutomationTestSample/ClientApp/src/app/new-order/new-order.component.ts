@@ -1,32 +1,35 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SpinnerService } from '../services/spinner.service';
+
+// Define a type for the form value to ensure type safety
+interface OrderFormValue {
+  patientMrn: string | null;
+  patientFirstName: string | null;
+  patientLastName: string | null;
+  accessionNumber: string | null;
+  orgCode: string | null;
+  siteId: string | null;
+  modality: string | null;
+  studyDateTime: string | null;
+}
 
 @Component({
   selector: 'app-new-order',
   templateUrl: './new-order.component.html',
   styleUrls: ['./new-order.component.css']
 })
-export class NewOrderComponent {
+export class NewOrderComponent implements OnInit {
 
   clients: Client[] = [];
   sites: ClientSite[] = [];
   modalities: Modality[] = [];
   errorMessage?: string;
 
-  orderForm = this.fb.group({
-    patientMrn: [null, [Validators.required, Validators.maxLength(16)]], // the .NET APIs are 15 or 12 length depending which one is used
-    patientFirstName: [null, [Validators.required, Validators.maxLength(64)]],
-    patientLastName: [null, [Validators.required, Validators.maxLength(64)]],
-
-    accessionNumber: [null, [Validators.required, Validators.maxLength(12)]], // the .NET APIs are 16 length, and the UI validatation says this is 10
-    orgCode: [null, [Validators.required, Validators.maxLength(5)]],
-    siteId: [null, [Validators.required, Validators.maxLength(5)]],
-    modality: [null], // the .NET APIs require this, and have a max length of 5
-    studyDateTime: [null, Validators.required] // the .NET APIs enforce this to not be in the future
-  });
+  // Strongly type the form group
+  orderForm: FormGroup;
 
   constructor(
     private http: HttpClient,
@@ -34,7 +37,18 @@ export class NewOrderComponent {
     private fb: FormBuilder,
     private router: Router,
     private spinnerService: SpinnerService) {
-    
+
+    this.orderForm = this.fb.group({
+      patientMrn: [null, [Validators.required, Validators.maxLength(16)]], // the .NET APIs are 15 or 12 length depending which one is used
+      patientFirstName: [null, [Validators.required, Validators.maxLength(64)]],
+      patientLastName: [null, [Validators.required, Validators.maxLength(64)]],
+
+      accessionNumber: [null, [Validators.required, Validators.maxLength(12)]], // the .NET APIs are 16 length, and the UI validatation says this is 10
+      orgCode: [null, [Validators.required, Validators.maxLength(5)]],
+      siteId: [null, [Validators.required, Validators.maxLength(5)]],
+      modality: [null], // the .NET APIs require this, and have a max length of 5
+      studyDateTime: [null, Validators.required] // the .NET APIs enforce this to not be in the future
+    });
   }
 
   ngOnInit(): void {
@@ -52,7 +66,9 @@ export class NewOrderComponent {
     this.errorMessage = undefined;
     if (this.orderForm.valid) {
       this.spinnerService.show();
-      this.http.post(this.baseUrl + `api/orders`, this.orderForm.value).subscribe(result => {
+      // Cast value to OrderFormValue for type safety
+      const formValue = this.orderForm.value as OrderFormValue;
+      this.http.post(this.baseUrl + `api/orders`, formValue).subscribe(result => {
         this.spinnerService.hide();
         // Success! Redirect to Orders page
         this.router.navigate(['/orders']);
