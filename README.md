@@ -9,7 +9,7 @@ Run the application and launch the homepage, which documents the context and the
 
 You will need the following tools installed to build and run this project:
 
-- [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Node.js](https://nodejs.org/en/download/)
 
 ## Running Locally
@@ -29,7 +29,7 @@ in your default browser.
     cd ..
     dotnet run
 
-Open https://localhost:7150/ in your browser to access the application.
+Open https://localhost:44449/ in your browser to access the application.
 
 ## Application Architecture
 
