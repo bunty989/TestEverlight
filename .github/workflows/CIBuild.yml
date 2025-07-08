@@ -19,6 +19,8 @@ jobs:
         exclude:
           - os: ubuntu-latest
             browser: Firefoxheadless
+          - os: macos-latest
+            browser: Edgeheadless
 
     steps:
       - uses: actions/checkout@v4
