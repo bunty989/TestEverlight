@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2025, macos-latest]
+        os: [ubuntu-latest, windows-2025, macos-15-large]
         browser: [Chromeheadless, Firefoxheadless, Edgeheadless]
         exclude:
           - os: ubuntu-latest
