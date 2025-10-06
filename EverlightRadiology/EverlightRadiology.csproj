@@ -20,8 +20,8 @@
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="18.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
-    <PackageReference Include="NUnit" Version="4.3.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="NUnit" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageReference Include="NUnitRetry.SpecFlowPlugin" Version="3.9.59" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Selenium.Support" Version="4.36.0" />
