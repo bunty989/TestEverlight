@@ -4,7 +4,6 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 using Serilog;
-using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 using ConfigType = EverlightRadiology.Framework.Wrapper.TestConstant.ConfigTypes;
 using ConfigKey = EverlightRadiology.Framework.Wrapper.TestConstant.ConfigTypesKey;
 using LocatorType = EverlightRadiology.Framework.Wrapper.TestConstant.LocatorType;
@@ -31,23 +30,23 @@ namespace EverlightRadiology.Framework.Wrapper
         {
             _locator = locatorType;
             _locatorInfo = locatorInfo;
-            var dWait = new WebDriverWait(Driver,
-                TimeSpan.FromSeconds(int.Parse(ConfigHelper.ReadConfigValue(ConfigType.WebDriverConfig,
-                    ConfigKey.ObjectIdentificationTimeOut))));
+            var dWait = new WebDriverWait(Driver ?? throw new ArgumentNullException(nameof(Driver)),
+                        TimeSpan.FromSeconds(int.Parse(ConfigHelper.ReadConfigValue(ConfigType.WebDriverConfig,
+                            ConfigKey.ObjectIdentificationTimeOut) ?? "0")));
             dWait.IgnoreExceptionTypes(typeof(StaleElementReferenceException),
                 typeof(NoSuchElementException),
-                typeof(InvalidElementStateException),
                 typeof(ElementNotInteractableException));
             try
             {
+                var locatorText = locatorInfo ?? throw new ArgumentNullException(nameof(locatorInfo));
                 IWebElement? dynamicElement;
                 List<IWebElement?> webElements;
                 switch (locatorType)
                 {
                     case LocatorType.Id:
                         {
-                            dynamicElement = dWait.Until(ExpectedConditions.ElementToBeClickable(By.Id(locatorInfo)));
-                            webElements = new List<IWebElement?>(Driver?.FindElements(By.Id(locatorInfo)));
+                            dynamicElement = dWait.Until(Driver => ElementToBeClickable(Driver, By.Id(locatorText)));
+                            webElements = [.. Driver?.FindElements(By.Id(locatorText))];
                             if (webElements.Count > 1)
                             {
                                 foreach (var webE in webElements.Where(IsElementDisplayed))
@@ -61,18 +60,18 @@ namespace EverlightRadiology.Framework.Wrapper
                     case LocatorType.ClassName:
                         {
                             dynamicElement =
-                                dWait.Until(ExpectedConditions.ElementToBeClickable(By.ClassName(locatorInfo)));
+                                dWait.Until(Driver => ElementToBeClickable(Driver, By.ClassName(locatorText)));
                             break;
                         }
                     case LocatorType.Name:
                         {
-                            dynamicElement = dWait.Until(ExpectedConditions.ElementToBeClickable(By.Name(locatorInfo)));
+                            dynamicElement = dWait.Until(Driver => ElementToBeClickable(Driver, By.Name(locatorText)));
                             break;
                         }
                     case LocatorType.XPath:
                         {
-                            dynamicElement = dWait.Until(ExpectedConditions.ElementToBeClickable(By.XPath(locatorInfo)));
-                            webElements = new List<IWebElement?>(Driver?.FindElements(By.XPath(locatorInfo)));
+                            dynamicElement = dWait.Until(Driver => ElementToBeClickable(Driver, By.XPath(locatorText)));
+                            webElements = [.. Driver.FindElements(By.XPath(locatorText))];
                             if (webElements.Count > 1)
                             {
                                 foreach (var webE in webElements.Where(IsElementDisplayed))
@@ -86,25 +85,25 @@ namespace EverlightRadiology.Framework.Wrapper
                     case LocatorType.CssSelector:
                         {
                             dynamicElement =
-                                dWait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector(locatorInfo)));
+                                dWait.Until(Driver => ElementToBeClickable(Driver, By.CssSelector(locatorText)));
                             break;
                         }
                     case LocatorType.LinkText:
                         {
                             dynamicElement =
-                                dWait.Until(ExpectedConditions.ElementToBeClickable(By.LinkText(locatorInfo)));
+                                dWait.Until(Driver => ElementToBeClickable(Driver, By.LinkText(locatorText)));
                             break;
                         }
                     case LocatorType.PartialLinkText:
                         {
                             dynamicElement =
-                                dWait.Until(ExpectedConditions.ElementToBeClickable(By.PartialLinkText(locatorInfo)));
+                                dWait.Until(Driver => ElementToBeClickable(Driver, By.PartialLinkText(locatorText)));
                             break;
                         }
                     case LocatorType.TagName:
                         {
                             dynamicElement =
-                                dWait.Until(ExpectedConditions.ElementToBeClickable(By.TagName(locatorInfo)));
+                                dWait.Until(Driver => ElementToBeClickable(Driver, By.TagName(locatorText)));
                             break;
                         }
                     default:
@@ -376,11 +375,11 @@ namespace EverlightRadiology.Framework.Wrapper
             try
             {
                 var wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
-                wait.Until(ExpectedConditions.AlertIsPresent());
+                wait.Until(AlertIsPresent);
                 var alert = Driver?.SwitchTo().Alert();
                 var strWarning = alert?.Text;
                 alert?.Accept();
-                wait.Until(ExpectedConditions.AlertState(false));
+                wait.Until(AlertIsNotPresent);
                 Log.Debug("Alert displayed as {0}", strWarning);
                 return strWarning;
             }
@@ -397,11 +396,11 @@ namespace EverlightRadiology.Framework.Wrapper
             try
             {
                 var wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
-                wait.Until(ExpectedConditions.AlertIsPresent());
+                wait.Until(AlertIsPresent);
                 var alert = Driver?.SwitchTo().Alert();
                 var strWarning = alert?.Text;
                 alert?.Dismiss();
-                wait.Until(ExpectedConditions.AlertState(false));
+                wait.Until(AlertIsNotPresent);
                 Log.Debug("Alert displayed as {0}", strWarning);
                 return strWarning;
             }
@@ -623,6 +622,37 @@ namespace EverlightRadiology.Framework.Wrapper
         private IWebElement? ReIdentifyAndInitialiseDynamicWebElement()
         {
             return InitialiseDynamicWebElement(_locator, _locatorInfo);
+        }
+
+        private static IWebElement? ElementToBeClickable(IWebDriver driver, By locator)
+        {
+            var element = driver.FindElement(locator);
+            return element.Displayed && element.Enabled ? element : null;
+        }
+
+        private static IAlert? AlertIsPresent(IWebDriver driver)
+        {
+            try
+            {
+                return driver.SwitchTo().Alert();
+            }
+            catch (NoAlertPresentException)
+            {
+                return null;
+            }
+        }
+
+        private static bool AlertIsNotPresent(IWebDriver driver)
+        {
+            try
+            {
+                driver.SwitchTo().Alert();
+                return false;
+            }
+            catch (NoAlertPresentException)
+            {
+                return true;
+            }
         }
     }
 }
